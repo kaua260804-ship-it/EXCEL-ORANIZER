@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="EXCEL ORGANIZER - Organize e trate planilhas XLS, XLSX e CSV de forma profissional.">
+  <title>EXCEL ORGANIZER</title>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/modes/curva-abc.css">
+
+  <!-- CDNs JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+</head>
+<body>
+
+  <!-- Overlay mobile para sidebar -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="brand">
+        <i class="fa-solid fa-table-cells-large"></i>
+        <div class="brand-text">
+          <span class="brand-title">EXCEL</span>
+          <span class="brand-sub">ORGANIZER</span>
+        </div>
+      </div>
+      <button class="sidebar-toggle" id="sidebarToggle" title="Recolher menu">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">Modos de Trabalho</div>
+      <ul id="navList">
+        <!-- Itens inseridos via JS (sidebar.js) -->
+      </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="footer-info">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span>100% Client-Side</span>
+      </div>
+      <div class="footer-version">v1.0.0</div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main" id="main">
+    <!-- HEADER -->
+    <header class="topbar">
+      <button class="menu-btn" id="menuBtn" title="Menu">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <div class="breadcrumb" id="breadcrumb">
+        <i class="fa-solid fa-house"></i>
+        <span>Início</span>
+      </div>
+      <div class="topbar-actions">
+        <button class="icon-btn" id="themeBtn" title="Alternar tema">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+        <button class="icon-btn" id="historyBtn" title="Histórico">
+          <i class="fa-solid fa-clock-rotate-left"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Área de conteúdo dos modos -->
+    <section class="content" id="content">
+      <!-- Renderizado dinamicamente -->
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <span>EXCEL ORGANIZER © <span id="year"></span> — Todos os dados são processados localmente no seu navegador.</span>
+    </footer>
+  </main>
+
+  <!-- Container de Toasts -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Modal de Histórico -->
+  <div class="modal" id="historyModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-clock-rotate-left"></i> Histórico de Processamentos</h3>
+        <button class="modal-close" data-close-modal><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body" id="historyBody">
+        <!-- Preenchido via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts (ordem importa) -->
+  <script src="js/config.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/toast.js"></script>
+  <script src="js/fileReader.js"></script>
+  <script src="js/sidebar.js"></script>
+
+  <!-- Módulos -->
+  <!-- Módulos -->
+  <script src="js/modes/curva-abc/mapper.js"></script>
+  <script src="js/modes/curva-abc/cleaner.js"></script>
+  <script src="js/modes/curva-abc/preview.js"></script>
+  <script src="js/modes/curva-abc/filters.js"></script>
+  <script src="js/modes/curva-abc/dashboard.js"></script>
+  <script src="js/modes/curva-abc/exporter.js"></script>
+  <script src="js/modes/curva-abc/index.js"></script>
+
+  <!-- Bootstrap final -->
+  <script src="js/main.js"></script>
+</body>
+</html>

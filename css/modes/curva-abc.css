@@ -1,0 +1,346 @@
+/* ============================================
+   CURVA-ABC.CSS — Estilos específicos do modo Curva ABC
+   ============================================
+   Inclui:
+   - Cabeçalho do modo
+   - Banner de status da base de referência (SGE vs C5)
+   - Grid de estatísticas de limpeza (agora com mais itens)
+   - Legenda de highlights na pré-visualização
+   - Barra de ações fixa
+   - Grid do dashboard (cards + gráfico + top lists)
+   ============================================ */
+
+/* ---------- CABEÇALHO DO MODO ---------- */
+.curva-header {
+  margin-bottom: var(--space-5);
+}
+
+.curva-header h1 {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+  font-size: 1.6rem;
+}
+
+.curva-header h1 i {
+  color: var(--color-primary);
+}
+
+.curva-header p {
+  color: var(--text-secondary);
+  max-width: 900px;
+  line-height: 1.55;
+}
+
+/* ---------- BANNER DE STATUS DA BASE (mapper) ---------- */
+/* Reutiliza .file-info do components.css, mas ganha destaque próprio */
+#mapperStatus {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: var(--bg-muted);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  margin-bottom: var(--space-4);
+  transition: background var(--transition), border-color var(--transition);
+}
+
+#mapperStatus i {
+  font-size: 1.05rem;
+}
+
+#mapperStatus .fi-name {
+  font-weight: 500;
+}
+
+/* Estado de sucesso (base carregada) */
+#mapperStatus.is-ok {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+  color: #065f46;
+}
+body.dark-theme #mapperStatus.is-ok {
+  background: rgba(22, 163, 74, 0.15);
+  border-color: rgba(22, 163, 74, 0.4);
+  color: #86efac;
+}
+
+/* Estado de erro/aviso (base indisponível) */
+#mapperStatus.is-warn {
+  background: #fffbeb;
+  border-color: #fde68a;
+  color: #92400e;
+}
+body.dark-theme #mapperStatus.is-warn {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.4);
+  color: #fcd34d;
+}
+
+/* ---------- SEÇÃO DE PREVIEW ---------- */
+.preview-section {
+  margin-top: var(--space-5);
+}
+
+/* ---------- ESTATÍSTICAS DE LIMPEZA ---------- */
+.clean-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+.clean-stat {
+  background: var(--bg-muted);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  text-align: center;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.clean-stat:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.clean-stat .cs-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  line-height: 1.1;
+}
+
+.clean-stat .cs-label {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+  line-height: 1.2;
+}
+
+/* Destaque visual para métricas de mapeamento (as duas últimas) */
+.clean-stat.cs-mapped {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+}
+.clean-stat.cs-mapped .cs-value { color: var(--color-success); }
+body.dark-theme .clean-stat.cs-mapped {
+  background: rgba(22, 163, 74, 0.12);
+  border-color: rgba(22, 163, 74, 0.35);
+}
+
+.clean-stat.cs-unmapped {
+  background: #fffbeb;
+  border-color: #fde68a;
+}
+.clean-stat.cs-unmapped .cs-value { color: var(--color-warning-hover); }
+body.dark-theme .clean-stat.cs-unmapped {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.35);
+}
+
+/* ---------- LEGENDA DE HIGHLIGHTS ---------- */
+.preview-legend {
+  display: flex;
+  gap: var(--space-4);
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.legend-dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.legend-removed {
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+}
+
+.legend-fixed {
+  background: #fef9c3;
+  border: 1px solid #fde68a;
+}
+
+/* ---------- BARRA DE AÇÕES FIXA ---------- */
+.action-bar {
+  position: sticky;
+  bottom: 0;
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border-color);
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  gap: var(--space-3);
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.06);
+  border-radius: var(--radius-md);
+  margin-top: var(--space-5);
+  z-index: 10;
+}
+
+body.dark-theme .action-bar {
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.35);
+}
+
+/* ---------- DASHBOARD LAYOUT ---------- */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+/* Gráfico sempre em destaque na primeira coluna */
+.dashboard-grid > .card:first-child {
+  grid-column: 1 / 2;
+}
+
+/* ---------- CABEÇALHO DE ARQUIVO CARREGADO ---------- */
+.file-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-primary-light);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-4);
+  color: var(--color-primary-hover);
+  font-size: 0.88rem;
+  flex-wrap: wrap;
+}
+
+body.dark-theme .file-info {
+  background: rgba(37, 99, 235, 0.15);
+  color: #93c5fd;
+}
+
+.file-info i.fa-file-excel {
+  font-size: 1.4rem;
+  color: var(--color-success);
+}
+
+.file-info .fi-name {
+  font-weight: 600;
+  word-break: break-all;
+}
+
+.file-info .fi-meta {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+}
+
+.file-info .spacer {
+  flex: 1;
+}
+
+/* ---------- TABELAS (ajustes específicos) ---------- */
+/* Coluna DESCCOMPLETA pode ser longa → permite truncar visualmente */
+.data-table td:last-child {
+  max-width: 380px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Coluna Código (primeira) → alinhamento à direita por ser número */
+.data-table th[data-field="codigo"],
+.data-table td:first-child {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Cabeçalhos ordenáveis: indicador visual quando ativo */
+.data-table th[data-field] .sort-ind i {
+  transition: color var(--transition);
+}
+
+.data-table th.sorted-asc .sort-ind i::before { content: "\f0de"; } /* fa-sort-up */
+.data-table th.sorted-desc .sort-ind i::before { content: "\f0dd"; } /* fa-sort-down */
+.data-table th.sorted-asc .sort-ind,
+.data-table th.sorted-desc .sort-ind {
+  opacity: 1;
+  color: var(--color-primary);
+}
+
+/* ---------- RESPONSIVO ---------- */
+@media (max-width: 1100px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+  .dashboard-grid > .card:first-child {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 900px) {
+  .curva-header h1 {
+    font-size: 1.35rem;
+  }
+
+  .clean-stats {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  }
+
+  .clean-stat .cs-value {
+    font-size: 1.05rem;
+  }
+
+  .action-bar {
+    justify-content: stretch;
+  }
+
+  .action-bar .btn {
+    flex: 1 1 auto;
+  }
+}
+
+@media (max-width: 600px) {
+  .curva-header h1 {
+    font-size: 1.15rem;
+  }
+
+  .clean-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .clean-stat {
+    padding: var(--space-2);
+  }
+
+  .clean-stat .cs-value {
+    font-size: 0.95rem;
+  }
+
+  .clean-stat .cs-label {
+    font-size: 0.62rem;
+  }
+
+  .preview-legend {
+    font-size: 0.72rem;
+    gap: var(--space-2);
+  }
+
+  .data-table td:last-child {
+    max-width: 200px;
+  }
+
+  .action-bar {
+    flex-direction: column;
+  }
+
+  .action-bar .btn {
+    width: 100%;
+  }
+}
