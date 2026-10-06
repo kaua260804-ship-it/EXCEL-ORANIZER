@@ -1,5 +1,12 @@
 /* ============================================
    SIDEBAR.JS — Navegação entre modos
+   ============================================
+   Modos registrados em js/main.js via Sidebar.register().
+   Modos ativos hoje:
+     - curva-abc   (📊 Curva ABC)
+     - reorganizar (📑 Reorganizar Códigos)
+   Placeholders:
+     - estoque, vendas, cadastro
    ============================================ */
 
 const Sidebar = {
@@ -16,23 +23,15 @@ const Sidebar = {
     this.navList = document.getElementById('navList');
     this.breadcrumb = document.getElementById('breadcrumb');
 
-    // Botão hamburger (mobile)
     document.getElementById('menuBtn').addEventListener('click', () => this.toggleMobile());
-    // Overlay
     this.overlay.addEventListener('click', () => this.closeMobile());
-    // Botão toggle (desktop)
     document.getElementById('sidebarToggle').addEventListener('click', () => this.toggleCollapse());
 
-    // Fecha sidebar ao clicar em item em mobile
     window.addEventListener('resize', () => {
       if (window.innerWidth > 900) this.closeMobile();
     });
   },
 
-  /**
-   * Registra um modo no sistema.
-   * Padrão: { id, nome, icone, enabled, init, destroy }
-   */
   register(modo) {
     this.modes[modo.id] = modo;
     this.renderNav();
@@ -65,19 +64,16 @@ const Sidebar = {
       return;
     }
 
-    // Destroy do modo anterior
     if (this.currentMode && this.modes[this.currentMode]?.destroy) {
       try { this.modes[this.currentMode].destroy(); } catch (e) { console.warn(e); }
     }
 
     this.currentMode = modeId;
 
-    // Atualiza nav
     Utils.$$('.nav-item', this.navList).forEach(el => {
       el.classList.toggle('active', el.dataset.mode === modeId);
     });
 
-    // Atualiza breadcrumb
     this.breadcrumb.innerHTML = `
       <i class="fa-solid fa-house"></i>
       <span>Início</span>
@@ -85,7 +81,6 @@ const Sidebar = {
       <strong>${Utils.escapeHtml(modo.nome)}</strong>
     `;
 
-    // Renderiza conteúdo do modo
     const content = document.getElementById('content');
     content.innerHTML = '';
     try {
@@ -95,7 +90,6 @@ const Sidebar = {
       Toast.error('Erro ao carregar o modo: ' + e.message);
     }
 
-    // Fecha sidebar em mobile
     if (window.innerWidth <= 900) this.closeMobile();
   },
 
