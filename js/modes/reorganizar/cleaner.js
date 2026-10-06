@@ -1,196 +1,192 @@
 /* ============================================
-   CLEANER.JS — Limpeza e organização dos dados (Curva ABC)
+   REORGANIZAR/CLEANER.JS
+   ============================================
+   Lógica principal de limpeza:
+   - Detecta células "sujas" na coluna COD ACESS
+     (contêm TABs e/ou quebras de linha)
+   - Faz o parse de cada linha interna (6 campos por TAB)
+   - Trata fragmentos (linhas com < 6 campos)
+   - Corrige notação científica em códigos
+   - Preserva zeros à esquerda
    ============================================ */
 
-const CurvaABCCleaner = {
+const ReorganizarCleaner = {
+
+  // Colunas fixas da planilha
+  COLS: ['SEQ', 'DESC', 'CATEGORIA', 'TIPOCOD', 'QTD EMB', 'COD ACESS'],
 
   /**
-   * Processa a matriz de linhas de uma aba e retorna resultado limpo.
-   * @param {Array<Array>} rows - matriz bruta (array de arrays)
+   * Detecta se uma célula COD ACESS está "suja":
+   * - Contém TAB, OU
+   * - Contém múltiplas linhas E ao menos 3 TABs
+   */
+  celulaSuja(valor) {
+    if (valor == null) return false;
+    const s = String(valor);
+    if (s.includes('\t')) return true;
+    const lines = s.split('\n').length;
+    const tabs = (s.match(/\t/g) || []).length;
+    return lines > 1 && tabs >= 3;
+  },
+
+  /**
+   * Corrige notação científica em códigos (ex.: "7,62221E+13" → "76222100000000").
+   * Preserva zeros à esquerda quando não é notação científica.
+   */
+  limparCodigo(v) {
+    const s = String(v ?? '').trim();
+    if (!s) return '';
+    // Notação científica (com vírgula ou ponto)
+    if (/e/i.test(s)) {
+      try {
+        const n = parseFloat(s.replace(',', '.'));
+        if (!isNaN(n) && isFinite(n)) {
+          // BigInt para não perder precisão em inteiros longos
+          return String(BigInt(Math.trunc(n)));
+        }
+      } catch (_) { /* mantém original */ }
+    }
+    return s;
+  },
+
+  /**
+   * Faz o parse de uma célula suja em múltiplos registros.
+   * @param {string} valor
+   * @returns {Array<Object>} registros extraídos
+   */
+  parseCelulaSuja(valor) {
+    const texto = String(valor).replace(/\r\n/g, '\n').replace(/\r/g, '');
+    const linhas = texto.split('\n').filter(l => l.trim() !== '');
+    const registros = [];
+
+    for (const linha of linhas) {
+      const partes = linha.split('\t');
+
+      // Fragmento de descrição: junta ao último registro
+      if (partes.length < 6 && registros.length > 0) {
+        const frag = linha.trim();
+        if (frag) {
+          registros[registros.length - 1].DESC =
+            (registros[registros.length - 1].DESC + ' ' + frag).trim();
+        }
+        continue;
+      }
+
+      // Completa até 6 campos
+      while (partes.length < 6) partes.push('');
+
+      registros.push({
+        SEQ:       partes[0].trim(),
+        DESC:      partes[1].trim(),
+        CATEGORIA: partes[2].trim(),
+        TIPOCOD:   partes[3].trim(),
+        'QTD EMB': partes[4].trim(),
+        'COD ACESS': partes[5].trim()
+      });
+    }
+
+    return registros;
+  },
+
+  /**
+   * Normaliza uma linha bruta em um objeto com as 6 colunas esperadas.
+   */
+  buildRow(linha) {
+    const obj = {};
+    this.COLS.forEach((c, i) => {
+      const v = linha[i];
+      obj[c] = v == null ? '' : String(v).trim();
+    });
+    return obj;
+  },
+
+  /**
+   * Verifica se uma linha está totalmente vazia.
+   */
+  isLinhaVazia(obj) {
+    return this.COLS.every(c => !obj[c]);
+  },
+
+  /**
+   * Processa uma matriz de linhas brutas (array de arrays).
+   * Retorna { data, stats }.
+   *
+   * @param {Array<Array>} linhasBrutas
    * @returns {{data: Array<Object>, stats: Object}}
    */
-  process(rows) {
+  process(linhasBrutas) {
     const stats = {
-      totalRows: rows.length,
-      removedHeaderSGE: 0,
-      removedInfo: 0,
-      removedColumnHeader: 0,
-      removedTotals: 0,
-      removedBlank: 0,
-      fixedShift: 0,
-      extracted: 0
+      totalRows: linhasBrutas.length,
+      linhasVazias: 0,
+      linhasSujas: 0,
+      linhasExpandidas: 0,
+      registrosFinais: 0
     };
 
-    const clean = [];
-    let headerFound = false;
+    const resultado = [];
 
-    for (let i = 0; i < rows.length; i++) {
-      const row = Array.isArray(rows[i]) ? rows[i] : [];
-      const joined = row.join(' ');
+    for (const linha of linhasBrutas) {
+      if (!Array.isArray(linha)) continue;
 
-      // 1) Cabeçalho SGE (repetido a cada página)
-      if (Utils.containsAny(joined, CONFIG.KEYWORDS.HEADER_SGE)) {
-        stats.removedHeaderSGE++;
+      const obj = this.buildRow(linha);
+
+      // Ignora linhas totalmente vazias
+      if (this.isLinhaVazia(obj)) {
+        stats.linhasVazias++;
         continue;
       }
 
-      // 2) Linhas informativas
-      if (Utils.containsAny(joined, CONFIG.KEYWORDS.INFO)) {
-        stats.removedInfo++;
-        continue;
-      }
+      if (this.celulaSuja(obj['COD ACESS'])) {
+        stats.linhasSujas++;
+        const expandidas = this.parseCelulaSuja(obj['COD ACESS']);
 
-      // 3) Linhas de totais
-      if (Utils.containsAny(joined, CONFIG.KEYWORDS.TOTALS)) {
-        stats.removedTotals++;
-        continue;
-      }
+        // Preenche SEQ/DESC/CATEGORIA/TIPOCOD originais quando vierem vazios
+        expandidas.forEach(r => {
+          if (!r.SEQ)       r.SEQ = obj.SEQ;
+          if (!r.DESC)      r.DESC = obj.DESC;
+          if (!r.CATEGORIA) r.CATEGORIA = obj.CATEGORIA;
+          if (!r.TIPOCOD)   r.TIPOCOD = obj.TIPOCOD;
+          r['COD ACESS'] = this.limparCodigo(r['COD ACESS']);
+          resultado.push(r);
+        });
 
-      // 4) Cabeçalho das colunas
-      const hasColHeader =
-        Utils.containsAny(joined, ['Código']) &&
-        Utils.containsAny(joined, ['Produto']) &&
-        Utils.containsAny(joined, ['Ocor']);
-      if (hasColHeader) {
-        stats.removedColumnHeader++;
-        headerFound = true;
-        continue;
-      }
-
-      // 5) Linha em branco
-      if (row.every(c => Utils.isEmpty(c))) {
-        stats.removedBlank++;
-        continue;
-      }
-
-      // 6) Antes do cabeçalho → lixo
-      if (!headerFound) {
-        stats.removedInfo++;
-        continue;
-      }
-
-      const record = this.extractRecord(row, stats);
-      if (record) {
-        clean.push(record);
-        stats.extracted++;
+        // Contabiliza linhas "novas" geradas (além da 1ª)
+        if (expandidas.length > 0) {
+          stats.linhasExpandidas += expandidas.length - 1;
+        }
+      } else {
+        // Linha normal: apenas normaliza o código
+        obj['COD ACESS'] = this.limparCodigo(obj['COD ACESS']);
+        resultado.push(obj);
       }
     }
 
-    // Ordena por código crescente (numérico)
-    clean.sort((a, b) => {
-      const ca = typeof a.codigo === 'number' ? a.codigo : parseInt(a.codigo, 10);
-      const cb = typeof b.codigo === 'number' ? b.codigo : parseInt(b.codigo, 10);
-      if (!isNaN(ca) && !isNaN(cb)) return ca - cb;
-      return String(a.codigo).localeCompare(String(b.codigo));
-    });
+    // Filtra novamente garantindo que não há linhas totalmente vazias
+    const data = resultado.filter(r => Object.values(r).some(v => v !== ''));
 
-    return { data: clean, stats };
-  },
-
-  /**
-   * Extrai um registro de uma linha, corrigindo deslocamentos.
-   * Formato esperado (após cabeçalho):
-   * [Código, Produto, Ocor, Peças, Qtd, Unid, %, Pr.Médio, Total R$, %, ABC, % Ac.]
-   */
-  extractRecord(row, stats) {
-    const arr = row.slice();
-    while (arr.length > 0 && Utils.isEmpty(arr[arr.length - 1])) arr.pop();
-    if (arr.length === 0) return null;
-
-    const codigoRaw = arr[0];
-    const produto = arr[1];
-    const next = arr[2];
-
-    if (Utils.isEmpty(codigoRaw)) return null;
-
-    // Detecção de deslocamento:
-    // "Produto" vazio + coluna 2 contém texto não numérico → mover para produto.
-    let produtoFinal = produto;
-    let shifted = false;
-
-    if (Utils.isEmpty(produto) && !Utils.isEmpty(next) && !Utils.isNumeric(next)) {
-      produtoFinal = next;
-      shifted = true;
-    }
-
-    const startIdx = shifted ? 3 : 2;
-
-    const ocor = arr[startIdx] ?? '';
-    const pecas = arr[startIdx + 1] ?? '';
-    const qtd = arr[startIdx + 2] ?? '';
-    const unid = arr[startIdx + 3] ?? '';
-    const perc1 = arr[startIdx + 4] ?? '';
-    const precoMedio = arr[startIdx + 5] ?? '';
-    const totalRS = arr[startIdx + 6] ?? '';
-    const perc2 = arr[startIdx + 7] ?? '';
-    const abc = arr[startIdx + 8] ?? '';
-    const percAc = arr[startIdx + 9] ?? '';
-
-    if (shifted) stats.fixedShift++;
-
-    // ⚠️ AJUSTE 1: código exportado como NÚMERO (sem zeros à esquerda)
-    const codigoNum = this.toIntegerCode(codigoRaw);
-
-    return {
-      codigo: codigoNum,                     // number | null
-      codigoOriginal: String(codigoRaw).trim(), // string preservando "00217" (para debug/mapper)
-      produto: String(produtoFinal || '').trim(),
-      ocor: Utils.toNumber(ocor),
-      pecas: Utils.toNumber(pecas),
-      qtd: Utils.toNumber(qtd),
-      unid: String(unid || '').trim(),
-      perc1: Utils.toNumber(perc1),
-      precoMedio: Utils.toNumber(precoMedio),
-      totalRS: Utils.toNumber(totalRS),
-      perc2: Utils.toNumber(perc2),
-      abc: String(abc || '').trim().toUpperCase(),
-      percAc: Utils.toNumber(percAc),
-      // Campos preenchidos posteriormente pelo mapper
-      seqfamilia: '',
-      seqproduto: '',
-      desccompleta: ''
-    };
-  },
-
-  /**
-   * Converte um código bruto em número inteiro, removendo zeros à esquerda.
-   * Ex: "00217" → 217; 217 → 217; "ABC" → null.
-   */
-  toIntegerCode(value) {
-    if (value == null || value === '') return null;
-    if (typeof value === 'number') return Math.trunc(value);
-    const s = String(value).trim();
-    if (s === '') return null;
-    if (/^\d+$/.test(s)) return parseInt(s, 10);
-    // Código não numérico: tenta parse parcial
-    const n = parseInt(s, 10);
-    return isNaN(n) ? null : n;
+    stats.registrosFinais = data.length;
+    return { data, stats };
   },
 
   /**
    * Processa múltiplas abas em lote.
+   * @param {Array<{name:string, rows:Array<Array>}>} sheets
    */
   processAll(sheets) {
-    const allData = [];
-    const allStats = {
-      totalRows: 0, removedHeaderSGE: 0, removedInfo: 0,
-      removedColumnHeader: 0, removedTotals: 0, removedBlank: 0,
-      fixedShift: 0, extracted: 0
+    const all = [];
+    const stats = {
+      totalRows: 0, linhasVazias: 0, linhasSujas: 0,
+      linhasExpandidas: 0, registrosFinais: 0
     };
 
     sheets.forEach(sheet => {
       const r = this.process(sheet.rows);
-      allData.push(...r.data);
-      Object.keys(allStats).forEach(k => allStats[k] += (r.stats[k] || 0));
+      all.push(...r.data);
+      Object.keys(stats).forEach(k => stats[k] += (r.stats[k] || 0));
     });
 
-    allData.sort((a, b) => {
-      const ca = typeof a.codigo === 'number' ? a.codigo : parseInt(a.codigo, 10);
-      const cb = typeof b.codigo === 'number' ? b.codigo : parseInt(b.codigo, 10);
-      if (!isNaN(ca) && !isNaN(cb)) return ca - cb;
-      return String(a.codigo).localeCompare(String(b.codigo));
-    });
-
-    return { data: allData, stats: allStats };
+    // Recalcula final
+    stats.registrosFinais = all.length;
+    return { data: all, stats };
   }
 };
