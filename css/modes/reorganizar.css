@@ -1,0 +1,217 @@
+/* ============================================
+   REORGANIZAR.CSS — Estilos do modo "Reorganizar Códigos"
+   ============================================
+   Reutiliza boa parte do padrão visual do Curva ABC.
+   Define:
+   - Cabeçalho do modo
+   - Grid de estatísticas de limpeza
+   - Barra de ações fixa
+   - Ajustes de tabela para colunas longas (DESC)
+   ============================================ */
+
+/* ---------- CABEÇALHO DO MODO ---------- */
+.reorg-header {
+  margin-bottom: var(--space-5);
+}
+.reorg-header h1 {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+  font-size: 1.6rem;
+}
+.reorg-header h1 i {
+  color: var(--color-primary);
+}
+.reorg-header p {
+  color: var(--text-secondary);
+  max-width: 900px;
+  line-height: 1.55;
+}
+
+/* ---------- SEÇÃO DE PREVIEW ---------- */
+.reorg-preview-section {
+  margin-top: var(--space-5);
+}
+
+/* ---------- ESTATÍSTICAS DE LIMPEZA ---------- */
+.reorg-clean-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+.reorg-clean-stat {
+  background: var(--bg-muted);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  text-align: center;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+.reorg-clean-stat:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+.reorg-clean-stat .rcs-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  line-height: 1.1;
+}
+.reorg-clean-stat .rcs-label {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+  line-height: 1.2;
+}
+
+/* Destaques */
+.reorg-clean-stat.rcs-dirty {
+  background: #fef3c7;
+  border-color: #fde68a;
+}
+.reorg-clean-stat.rcs-dirty .rcs-value { color: var(--color-warning-hover); }
+body.dark-theme .reorg-clean-stat.rcs-dirty {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.35);
+}
+
+.reorg-clean-stat.rcs-expanded {
+  background: #dbeafe;
+  border-color: #bfdbfe;
+}
+.reorg-clean-stat.rcs-expanded .rcs-value { color: var(--color-primary-hover); }
+body.dark-theme .reorg-clean-stat.rcs-expanded {
+  background: rgba(37, 99, 235, 0.12);
+  border-color: rgba(37, 99, 235, 0.35);
+}
+
+.reorg-clean-stat.rcs-final {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+}
+.reorg-clean-stat.rcs-final .rcs-value { color: var(--color-success); }
+body.dark-theme .reorg-clean-stat.rcs-final {
+  background: rgba(22, 163, 74, 0.12);
+  border-color: rgba(22, 163, 74, 0.35);
+}
+
+/* ---------- LEGENDA DE HIGHLIGHTS ---------- */
+.reorg-preview-legend {
+  display: flex;
+  gap: var(--space-4);
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-3);
+  flex-wrap: wrap;
+}
+.reorg-legend-dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+.reorg-legend-dirty {
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+}
+.reorg-legend-empty {
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+}
+
+/* ---------- BARRA DE AÇÕES FIXA ---------- */
+.reorg-action-bar {
+  position: sticky;
+  bottom: 0;
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border-color);
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  gap: var(--space-3);
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.06);
+  border-radius: var(--radius-md);
+  margin-top: var(--space-5);
+  z-index: 10;
+}
+body.dark-theme .reorg-action-bar {
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.35);
+}
+
+/* ---------- AJUSTES DE TABELA ---------- */
+/* Coluna DESC costuma ser longa → truncar visualmente */
+.reorg-table td.col-desc {
+  max-width: 420px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* Coluna COD ACESS é o alvo do processamento → destacar */
+.reorg-table td.col-cod {
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 0.8rem;
+  color: var(--text-primary);
+}
+
+/* Linha suja (highlight no preview "Original") */
+.reorg-table tbody tr.row-dirty {
+  background: #fef3c7 !important;
+  border-left: 3px solid var(--color-warning);
+}
+.reorg-table tbody tr.row-dirty:hover {
+  background: #fde68a !important;
+}
+body.dark-theme .reorg-table tbody tr.row-dirty {
+  background: rgba(245, 158, 11, 0.15) !important;
+  border-left-color: var(--color-warning);
+}
+
+/* ---------- INFO DO ARQUIVO CARREGADO ---------- */
+.reorg-file-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-primary-light);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-4);
+  color: var(--color-primary-hover);
+  font-size: 0.88rem;
+  flex-wrap: wrap;
+}
+body.dark-theme .reorg-file-info {
+  background: rgba(37, 99, 235, 0.15);
+  color: #93c5fd;
+}
+.reorg-file-info i.fa-file-excel {
+  font-size: 1.4rem;
+  color: var(--color-success);
+}
+.reorg-file-info .rfi-name { font-weight: 600; word-break: break-all; }
+.reorg-file-info .rfi-meta { color: var(--text-secondary); font-size: 0.8rem; }
+.reorg-file-info .spacer { flex: 1; }
+
+/* ---------- RESPONSIVO ---------- */
+@media (max-width: 900px) {
+  .reorg-header h1 { font-size: 1.35rem; }
+  .reorg-clean-stats { grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); }
+  .reorg-action-bar { justify-content: stretch; }
+  .reorg-action-bar .btn { flex: 1 1 auto; }
+}
+
+@media (max-width: 600px) {
+  .reorg-header h1 { font-size: 1.15rem; }
+  .reorg-clean-stats { grid-template-columns: repeat(2, 1fr); }
+  .reorg-clean-stat { padding: var(--space-2); }
+  .reorg-clean-stat .rcs-value { font-size: 0.95rem; }
+  .reorg-clean-stat .rcs-label { font-size: 0.62rem; }
+  .reorg-table td.col-desc { max-width: 200px; }
+  .reorg-action-bar { flex-direction: column; }
+  .reorg-action-bar .btn { width: 100%; }
+}
