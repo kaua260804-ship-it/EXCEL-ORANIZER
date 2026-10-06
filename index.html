@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/modes/curva-abc.css">
+  <link rel="stylesheet" href="css/modes/reorganizar.css">
 
   <!-- CDNs JS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
@@ -50,13 +51,12 @@
         <i class="fa-solid fa-shield-halved"></i>
         <span>100% Client-Side</span>
       </div>
-      <div class="footer-version">v1.0.0</div>
+      <div class="footer-version">v1.1.0</div>
     </div>
   </aside>
 
   <!-- MAIN -->
   <main class="main" id="main">
-    <!-- HEADER -->
     <header class="topbar">
       <button class="menu-btn" id="menuBtn" title="Menu">
         <i class="fa-solid fa-bars"></i>
@@ -75,18 +75,13 @@
       </div>
     </header>
 
-    <!-- Área de conteúdo dos modos -->
-    <section class="content" id="content">
-      <!-- Renderizado dinamicamente -->
-    </section>
+    <section class="content" id="content"></section>
 
-    <!-- FOOTER -->
     <footer class="footer">
       <span>EXCEL ORGANIZER © <span id="year"></span> — Todos os dados são processados localmente no seu navegador.</span>
     </footer>
   </main>
 
-  <!-- Container de Toasts -->
   <div class="toast-container" id="toastContainer"></div>
 
   <!-- Modal de Histórico -->
@@ -96,21 +91,18 @@
         <h3><i class="fa-solid fa-clock-rotate-left"></i> Histórico de Processamentos</h3>
         <button class="modal-close" data-close-modal><i class="fa-solid fa-xmark"></i></button>
       </div>
-      <div class="modal-body" id="historyBody">
-        <!-- Preenchido via JS -->
-      </div>
+      <div class="modal-body" id="historyBody"></div>
     </div>
   </div>
 
-  <!-- Scripts (ordem importa) -->
+  <!-- Scripts globais -->
   <script src="js/config.js"></script>
   <script src="js/utils.js"></script>
   <script src="js/toast.js"></script>
   <script src="js/fileReader.js"></script>
   <script src="js/sidebar.js"></script>
 
-  <!-- Módulos -->
-  <!-- Módulos -->
+  <!-- Módulo: Curva ABC -->
   <script src="js/modes/curva-abc/mapper.js"></script>
   <script src="js/modes/curva-abc/cleaner.js"></script>
   <script src="js/modes/curva-abc/preview.js"></script>
@@ -119,7 +111,14 @@
   <script src="js/modes/curva-abc/exporter.js"></script>
   <script src="js/modes/curva-abc/index.js"></script>
 
-  <!-- Bootstrap final -->
+  <!-- Módulo: Reorganizar Códigos de Acesso -->
+  <script src="js/modes/reorganizar/cleaner.js"></script>
+  <script src="js/modes/reorganizar/preview.js"></script>
+  <script src="js/modes/reorganizar/filters.js"></script>
+  <script src="js/modes/reorganizar/exporter.js"></script>
+  <script src="js/modes/reorganizar/index.js"></script>
+
+  <!-- Bootstrap -->
   <script src="js/main.js"></script>
 </body>
 </html>
